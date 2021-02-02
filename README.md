@@ -2,10 +2,11 @@
 Telegram bot to catch vk users when they appear online
 
 ## Installation
+Installed Go compiler required to compile or run code
 ```bash
 git clone https://github.com/Don2Quixote/vk-spotter-bot
 cd vk-spotter-bot
-go build . # Of course Go compiler installed required
+go build .
 ```
 
 ## Launching
