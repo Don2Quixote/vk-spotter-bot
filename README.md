@@ -12,5 +12,5 @@ go build .
 ## Launching
 Launching requires environment variables' specification
 ```bash
-TG_TOKEN=your_bot_token VK_TOKNE=your_vk_token ./vk-spotter-bot
+TG_TOKEN=bot_token VK_TOKEN=vk_token ADMIN_ID=admin_id ./vk-spotter-bot
 ```
