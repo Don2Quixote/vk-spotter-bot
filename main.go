@@ -1,13 +1,13 @@
 package main
 
 import (
-    "os"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -159,21 +159,21 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 	}
 
 	if command == "/start" {
-        bot.SendMessage(message.From.Id, "👋 Hello", &telegram.SendMessageConfig{
-            ReplyMarkup: &telegram.ReplyMarkup{
-                ReplyKeyboardMarkup: &telegram.ReplyKeyboardMarkup{
-                    Keyboard: telegram.ReplyKeyboard{
-                        telegram.ReplyKeyboardRow{
-                            telegram.ReplyKeyboardButton{Text: "📝 List"},
-                        },
-                        telegram.ReplyKeyboardRow{
-                            telegram.ReplyKeyboardButton{Text: "♻️ Clear List"},
-                        },
-                    },
-                    ResizeKeyboard: true,
-                },
-            },
-        })
+		bot.SendMessage(message.From.Id, "👋 Hello", &telegram.SendMessageConfig{
+			ReplyMarkup: &telegram.ReplyMarkup{
+				ReplyKeyboardMarkup: &telegram.ReplyKeyboardMarkup{
+					Keyboard: telegram.ReplyKeyboard{
+						telegram.ReplyKeyboardRow{
+							telegram.ReplyKeyboardButton{Text: "📝 List"},
+						},
+						telegram.ReplyKeyboardRow{
+							telegram.ReplyKeyboardButton{Text: "♻️ Clear List"},
+						},
+					},
+					ResizeKeyboard: true,
+				},
+			},
+		})
 	} else if command == "/add" {
 		if len(args) == 0 {
 			bot.SendMessage(message.From.Id, "ℹ️ No arguments", nil)
@@ -397,16 +397,16 @@ func handleCallback(bot *telegram.Bot, callback *telegram.CallbackQuery) {
 }
 
 func main() {
-    TG_TOKEN = os.Getenv("TG_TOKEN")
-    VK_TOKEN = os.Getenv("VK_TOKEN")
-    if TG_TOKEN == "" {
-        fmt.Printf("TG_TOKEN Not specified")
-    }
-    if VK_TOKEN == "" {
-        fmt.Printf("VK_TOKEN Not specified")
-    }
+	TG_TOKEN = os.Getenv("TG_TOKEN")
+	VK_TOKEN = os.Getenv("VK_TOKEN")
+	if TG_TOKEN == "" {
+		fmt.Printf("TG_TOKEN Not specified")
+	}
+	if VK_TOKEN == "" {
+		fmt.Printf("VK_TOKEN Not specified")
+	}
 
-    bot := telegram.NewBot(TG_TOKEN)
+	bot := telegram.NewBot(TG_TOKEN)
 
 	go targets.startTracing(bot)
 
