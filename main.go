@@ -412,7 +412,8 @@ func main() {
 		fmt.Println("OWNER_ID Not specified")
 		return
 	}
-	OWNER_ID, err := strconv.Atoi(ownerIdString)
+    var err error
+	OWNER_ID, err = strconv.Atoi(ownerIdString)
 	if err != nil {
 		fmt.Println("OWNER_ID Must be a number")
 		return
