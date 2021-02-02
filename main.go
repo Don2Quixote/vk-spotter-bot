@@ -86,7 +86,7 @@ func (targets *Targets) startTracing(bot *telegram.Bot) {
 						} else {
 							domainIsPrimaryCallbackArg = "false"
 						}
-						bot.SendMessage(433932379, notificationMessageText, &telegram.SendMessageConfig{
+						bot.SendMessage(OWNER_ID, notificationMessageText, &telegram.SendMessageConfig{
 							ReplyMarkup: &telegram.ReplyMarkup{
 								InlineKeyboardMarkup: &telegram.InlineKeyboardMarkup{
 									InlineKeyboard: telegram.InlineKeyboard{
@@ -106,7 +106,7 @@ func (targets *Targets) startTracing(bot *telegram.Bot) {
 	}
 }
 
-var VK_TOKEN, TG_TOKEN = "", ""
+var VK_TOKEN, TG_TOKEN, OWNER_ID = "", "", 0
 
 type vkUser struct {
 	Id              int    `json:"id"`
@@ -159,7 +159,7 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 	}
 
 	if command == "/start" {
-		bot.SendMessage(message.From.Id, "👋 Hello", &telegram.SendMessageConfig{
+		bot.SendMessage(OWNER_ID, "👋 Hello", &telegram.SendMessageConfig{
 			ReplyMarkup: &telegram.ReplyMarkup{
 				ReplyKeyboardMarkup: &telegram.ReplyKeyboardMarkup{
 					Keyboard: telegram.ReplyKeyboard{
@@ -176,7 +176,7 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 		})
 	} else if command == "/add" {
 		if len(args) == 0 {
-			bot.SendMessage(message.From.Id, "ℹ️ No arguments", nil)
+			bot.SendMessage(OWNER_ID, "ℹ️ No arguments", nil)
 			return
 		}
 
@@ -226,7 +226,7 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 					replyText = fmt.Sprintf("ℹ️ %d (%s %s) Already added", user.Id, user.FirstName, user.LastName)
 				}
 				go func() {
-					bot.SendMessage(message.From.Id, replyText, nil)
+					bot.SendMessage(OWNER_ID, replyText, nil)
 					sendingMessages.Done()
 				}()
 				continue
@@ -240,7 +240,7 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 					replyText = fmt.Sprintf("✉️ %d (%s %s) Online", user.Id, user.FirstName, user.LastName)
 				}
 				go func() {
-					bot.SendMessage(message.From.Id, replyText, nil)
+					bot.SendMessage(OWNER_ID, replyText, nil)
 					sendingMessages.Done()
 				}()
 				continue
@@ -262,7 +262,7 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 				replyText = fmt.Sprintf("✅ %d (%s %s) Added", user.Id, user.FirstName, user.LastName)
 			}
 			go func() {
-				bot.SendMessage(message.From.Id, replyText, nil)
+				bot.SendMessage(OWNER_ID, replyText, nil)
 				sendingMessages.Done()
 			}()
 		}
@@ -270,7 +270,7 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 			if id != "" {
 				replyText := fmt.Sprintf("❌ %s Not found", id)
 				go func() {
-					bot.SendMessage(message.From.Id, replyText, nil)
+					bot.SendMessage(OWNER_ID, replyText, nil)
 					sendingMessages.Done()
 				}()
 			}
@@ -279,7 +279,7 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 		sendingMessages.Wait()
 	} else if command == "/remove" {
 		if len(args) == 0 {
-			bot.SendMessage(message.From.Id, "ℹ️ No arguments", nil)
+			bot.SendMessage(OWNER_ID, "ℹ️ No arguments", nil)
 			return
 		}
 
@@ -295,22 +295,22 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 					} else {
 						replyText = fmt.Sprintf("✅ %d (%s %s) Removed", target.Id, target.FirstName, target.LastName)
 					}
-					bot.SendMessage(message.From.Id, replyText, nil)
+					bot.SendMessage(OWNER_ID, replyText, nil)
 					break
 				}
 			}
 			if !found {
-				bot.SendMessage(message.From.Id, fmt.Sprintf("❌ %s Not found in tracing list", vkIdOrDomain), nil)
+				bot.SendMessage(OWNER_ID, fmt.Sprintf("❌ %s Not found in tracing list", vkIdOrDomain), nil)
 			}
 		}
 	} else if command == "/clear" || command == "♻️" {
 		if len(targets) == 0 {
-			bot.SendMessage(message.From.Id, fmt.Sprintf("ℹ️ Tracing list is empty"), nil)
+			bot.SendMessage(OWNER_ID, fmt.Sprintf("ℹ️ Tracing list is empty"), nil)
 			return
 		}
 
 		targets.clear()
-		bot.SendMessage(message.From.Id, "✅ Tracing list cleared", nil)
+		bot.SendMessage(OWNER_ID, "✅ Tracing list cleared", nil)
 	} else if command == "/list" || command == "📝" {
 		replyText := "📝 Tracing list"
 		if len(targets) == 0 {
@@ -325,9 +325,9 @@ func handleMessage(bot *telegram.Bot, message *telegram.Message) {
 				replyText += fmt.Sprintf("%d. %d (%s %s)\n", i+1, target.Id, target.FirstName, target.LastName)
 			}
 		}
-		bot.SendMessage(message.From.Id, replyText, nil)
+		bot.SendMessage(OWNER_ID, replyText, nil)
 	} else {
-		bot.SendMessage(message.From.Id, "ℹ️ Unknown command", nil)
+		bot.SendMessage(OWNER_ID, "ℹ️ Unknown command", nil)
 	}
 }
 
@@ -399,11 +399,23 @@ func handleCallback(bot *telegram.Bot, callback *telegram.CallbackQuery) {
 func main() {
 	TG_TOKEN = os.Getenv("TG_TOKEN")
 	VK_TOKEN = os.Getenv("VK_TOKEN")
+	ownerIdString := os.Getenv("OWNER_ID")
 	if TG_TOKEN == "" {
-		fmt.Printf("TG_TOKEN Not specified")
+		fmt.Println("TG_TOKEN Not specified")
+		return
 	}
 	if VK_TOKEN == "" {
-		fmt.Printf("VK_TOKEN Not specified")
+		fmt.Println("VK_TOKEN Not specified")
+		return
+	}
+	if ownerIdString == "" {
+		fmt.Println("OWNER_ID Not specified")
+		return
+	}
+	OWNER_ID, err := strconv.Atoi(ownerIdString)
+	if err != nil {
+		fmt.Println("OWNER_ID Must be a number")
+		return
 	}
 
 	bot := telegram.NewBot(TG_TOKEN)
@@ -415,7 +427,7 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil {
-			if update.Message.From.Id == 433932379 && update.Message.Chat.Type == "private" {
+			if update.Message.From.Id == OWNER_ID && update.Message.Chat.Type == "private" {
 				go handleMessage(bot, update.Message)
 			}
 		} else if update.CallbackQuery != nil {
